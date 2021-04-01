@@ -31,10 +31,10 @@ class GGNetworkTool: NSObject {
                    param:Parameters?=nil,
                    shouldPrint:Bool=true,
                    isCache:Bool = false,
-                   callback:@escaping(_ json:JSON?,_ isSuccess:Bool)->()) {
+                   callback:@escaping(_ json:JSON?,_ isSuccess:Bool,_ isCache:Bool)->()) {
         GGNetworkTool_singleton.request(uri:uri, parameters:(param ?? [String:Any]()),
-                                      m:HTTPMethod.get, shouldPrint:shouldPrint, isCache: isCache) { (json,isSuccess) in
-            callback(json,isSuccess)
+                                      m:HTTPMethod.get, shouldPrint:shouldPrint, isCache: isCache) { (json,isSuccess,isCache) in
+            callback(json,isSuccess,isCache)
         }
     }
     
@@ -42,10 +42,10 @@ class GGNetworkTool: NSObject {
                     param:Parameters?=nil,
                     shouldPrint:Bool=true,
                     isCache:Bool = false,
-                    callback:@escaping(_ json:JSON?,_ isSuccess:Bool)->()) {
+                    callback:@escaping(_ json:JSON?,_ isSuccess:Bool,_ isCache:Bool)->()) {
         GGNetworkTool_singleton.request(uri:uri,parameters:(param ?? [String:Any]()),
-                                      m:HTTPMethod.post,shouldPrint:shouldPrint, isCache: isCache) { (json,isSuccess) in
-            callback(json,isSuccess)
+                                      m:HTTPMethod.post,shouldPrint:shouldPrint, isCache: isCache) { (json,isSuccess,isCache) in
+            callback(json,isSuccess,isCache)
         }
     }
     
@@ -54,7 +54,7 @@ class GGNetworkTool: NSObject {
                    shouldPrint:Bool=true,
                    callback:@escaping(_ json:JSON?,_ isSuccess:Bool)->()) {
         GGNetworkTool_singleton.request(uri:uri,parameters:(param ?? [String:Any]()),
-                                      m:HTTPMethod.put,shouldPrint:shouldPrint) { (json,isSuccess) in
+                                      m:HTTPMethod.put,shouldPrint:shouldPrint) { (json,isSuccess,isCache) in
             callback(json,isSuccess)
         }
     }
@@ -64,7 +64,7 @@ class GGNetworkTool: NSObject {
                    shouldPrint:Bool=true,
                    callback:@escaping(_ json:JSON?,_ isSuccess:Bool)->()) {
         GGNetworkTool_singleton.request(uri:uri,parameters:(param ?? [String:Any]()),
-                                      m:HTTPMethod.delete,shouldPrint:shouldPrint) { (json,isSuccess) in
+                                      m:HTTPMethod.delete,shouldPrint:shouldPrint) { (json,isSuccess,isCache) in
             callback(json,isSuccess)
         }
     }
@@ -74,11 +74,11 @@ class GGNetworkTool: NSObject {
                  m:HTTPMethod,
                  shouldPrint:Bool=true,
                  isCache:Bool = false,
-                 callBack:@escaping(_ json:JSON?,_ isSuccess:Bool)->()) {
+                 callBack:@escaping(_ json:JSON?,_ isSuccess:Bool, _ isCache:Bool)->()) {
         let completeUrl = baseUrl + uri
         /// 是否请求缓存，请求缓存的话
         if isCache, let cacheJson = GGNetworkCache.getHttpCache(completeUrl, parameters)?.json {
-            callBack(cacheJson, true)
+            callBack(cacheJson, true, true)
         }
         var headers: HTTPHeaders = HTTPHeaders()
         headers["token"] = "我是登录的token"
@@ -119,7 +119,7 @@ class GGNetworkTool: NSObject {
                 cacheModel.json = json
                 GGNetworkCache.setHttpCache(cacheModel, completeUrl, parameters)
             }
-            callBack(json,isSuccess)
+            callBack(json,isSuccess, false)
             if let err = res.error { print(err)}// -1009 代表网络状态不佳
             print("└────────────────────────\(m.rawValue)────────────────────────┘")
         }
